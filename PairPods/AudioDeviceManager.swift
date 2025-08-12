@@ -60,13 +60,13 @@ final class AudioDeviceManager: ObservableObject {
 
     // MARK: - Public Methods
 
-    public func cleanup() async {
+    func cleanup() async {
         logInfo("Cleaning up AudioDeviceManager")
         await removeMultiOutputDevice()
         removePropertyListener()
     }
 
-    public func setupMultiOutputDevice() async throws {
+    func setupMultiOutputDevice() async throws {
         logInfo("Starting setup of multi-output device")
         let (defaultDevice, originalID) = await fetchDefaultOutputDevice()
         originalOutputDeviceID = originalID
@@ -87,7 +87,7 @@ final class AudioDeviceManager: ObservableObject {
         logInfo("Multi-output device setup completed successfully")
     }
 
-    public func restoreOutputDevice() async {
+    func restoreOutputDevice() async {
         logInfo("Restoring output device to previous state")
         do {
             let devices = try await fetchAllAudioDevices()
@@ -117,7 +117,7 @@ final class AudioDeviceManager: ObservableObject {
         sharedDevices = nil
     }
 
-    public func removeMultiOutputDevice() async {
+    func removeMultiOutputDevice() async {
         logInfo("Attempting to remove existing multi-output device")
         if let deviceID = await fetchDeviceID(deviceUID: multiOutputDeviceUID as CFString) {
             do {
@@ -134,12 +134,12 @@ final class AudioDeviceManager: ObservableObject {
         }
     }
 
-    public func isMultiOutputDeviceActive() async -> Bool {
+    func isMultiOutputDeviceActive() async -> Bool {
         let (defaultDevice, _) = await fetchDefaultOutputDevice()
         return defaultDevice?.uid == multiOutputDeviceUID
     }
 
-    public func isMultiOutputDeviceValid() async -> Bool {
+    func isMultiOutputDeviceValid() async -> Bool {
         guard let masterDevice = sharedDevices?.master,
               let secondDevice = sharedDevices?.second
         else {
@@ -151,7 +151,7 @@ final class AudioDeviceManager: ObservableObject {
     }
 
     // Method to refresh the list of compatible devices
-    public func refreshCompatibleDevices() async {
+    func refreshCompatibleDevices() async {
         do {
             let devices = try await fetchAllAudioDevices()
             compatibleDevices = devices.filter(\.isCompatibleOutputDevice)
@@ -162,7 +162,7 @@ final class AudioDeviceManager: ObservableObject {
     }
 
     // Get volume for a specific device
-    public func getDeviceVolume(deviceID: AudioDeviceID) async -> Float {
+    func getDeviceVolume(deviceID: AudioDeviceID) async -> Float {
         if let device = compatibleDevices.first(where: { $0.id == deviceID }),
            let volume = await device.getVolume()
         {
@@ -172,7 +172,7 @@ final class AudioDeviceManager: ObservableObject {
     }
 
     // Set volume for a specific device
-    public func setDeviceVolume(deviceID: AudioDeviceID, volume: Float) async {
+    func setDeviceVolume(deviceID: AudioDeviceID, volume: Float) async {
         guard let device = compatibleDevices.first(where: { $0.id == deviceID }) else {
             logError("Failed to set volume for device", error: .operationError("Device with ID \(deviceID) not found"))
             return
